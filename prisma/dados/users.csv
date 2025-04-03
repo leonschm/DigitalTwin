@@ -1,0 +1,4 @@
+id,email,password,createdAt,updatedAt,isActive
+1,ana.silva@example.com,senha123,2023-01-01T00:00:00Z,2023-01-01T00:00:00Z,true
+2,joao.oliveira@example.com,senha123,2023-01-01T00:00:00Z,2023-01-01T00:00:00Z,true
+3,clara.souza@example.com,senha123,2023-01-01T00:00:00Z,2023-01-01T00:00:00Z,true

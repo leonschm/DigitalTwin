@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  password            String // Hash da senha
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  isActive            Boolean              @default(true) // Opcional: Status do usuário
+  profile             Profile? // Relação 1:1 com Profile
+  permissions         Permission[] // Relação 1:N com Permission
+  externalConnections ExternalConnection[] // Relação 1:N com ExternalConnection
+  aiConfiguration     AIConfiguration? // Relação 1:1 com AIConfiguration
+  dataSources         DataSource[] // Várias fontes de dados
+  userPermissions     UserPermission[] // Várias permissões
+
+  @@map("users")
+}
+
+model Profile {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique // Chave estrangeira para User
+  name      String // Nome do usuário
+  bio       String? // Opcional: Biografia
+  avatarUrl String? // Opcional: URL da foto
+  timezone  String? // Opcional: Fuso horário
+  language  String? // Opcional: Idioma
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Permission {
+  id             Int       @id @default(autoincrement())
+  userId         Int // Chave estrangeira para User
+  permissionType String // Ex.: "admin", "user"
+  expirationDate DateTime? // Opcional: Data de expiração
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model ExternalConnection {
+  id           Int      @id @default(autoincrement())
+  userId       Int // Chave estrangeira para User
+  serviceName  String // Ex.: "X", "Instagram"
+  accessToken  String // Token de acesso ao serviço
+  refreshToken String? // Opcional: Token de atualização
+  connectedAt  DateTime @default(now()) // Data de conexão
+  status       String   @default("active") // Ex.: "active", "disconnected"
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model AIConfiguration {
+  id                    Int      @id @default(autoincrement())
+  userId                Int      @unique
+  interactionStyle      String
+  maxInteractionsPerDay Int?
+  preferredTopics       String[]
+  tone                  String?
+  responseLength        String?
+  user                  User     @relation(fields: [userId], references: [id])
+}
+
+model DataSource {
+  id           Int            @id @default(autoincrement())
+  userId       Int
+  sourceType   String
+  sourceName   String?
+  status       String         @default("active")
+  lastUpdated  DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id])
+  trainingData TrainingData[]
+}
+
+model UserPermission {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  permissionType String
+  status         String    @default("granted")
+  expirationDate DateTime?
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model TrainingData {
+  id           Int        @id @default(autoincrement())
+  dataSourceId Int
+  content      String
+  createdAt    DateTime   @default(now())
+  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+}
