@@ -15,18 +15,18 @@ export default function Dashboard() {
 	console.log("Usuario do Dashborad: " + JSON.stringify(user))
 
 	const [formData, setFormData] = useState({
-		name: "Ana Silva",
-		bio: "Analista de marketing",
-		language: "pt-BR",
-		timezone: "America/Sao_Paulo",
-		interactionStyle: "formal",
-		maxInteractionsPerDay: "10",
-		preferredTopics: "marketing,tecnologia",
-		tone: "profissional",
-		responseLength: "detalhada",
-		sourceType: "social_media",
-		sourceName: "X",
-		sourceStatus: "active",
+		name: user?.profile?.name || "",
+		bio: user?.profile?.bio || "",
+		language: user?.profile?.language || "pt-BR",
+		timezone: user?.profile?.timezone || "America/Brasilia",
+		interactionStyle: user?.aiConfiguration?.interactionStyle || "formal",
+		maxInteractionsPerDay: user?.aiConfiguration?.maxInteractionsPerDay || 10,
+		preferredTopics: user?.aiConfiguration?.preferredTopics?.join(", ") || "",
+		tone: user?.aiConfiguration?.tone || "profissional",
+		responseLength: user?.aiConfiguration?.responseLength || "curta",
+		sourceType: user?.dataSources[0]?.sourceType || "social_media",
+		sourceName: user?.dataSources[0]?.sourceName || "X",
+		sourceStatus: user?.dataSources[0]?.status || "active",
 	})
 
 	const [chatMessages, setChatMessages] = useState([{ sender: "Gêmeo Digital", text: "Olá! Como posso te ajudar hoje?", timestamp: new Date() }])
@@ -52,7 +52,7 @@ export default function Dashboard() {
 					},
 					aiConfiguration: {
 						interactionStyle: formData.interactionStyle || undefined,
-						maxInteractionsPerDay: formData.maxInteractionsPerDay ? parseInt(formData.maxInteractionsPerDay) : undefined,
+						maxInteractionsPerDay: formData.maxInteractionsPerDay ? formData.maxInteractionsPerDay : undefined,
 						preferredTopics: formData.preferredTopics ? formData.preferredTopics.split(",").map((t) => t.trim()) : undefined,
 						tone: formData.tone || undefined,
 						responseLength: formData.responseLength || undefined,
