@@ -45,7 +45,7 @@ export default function Login() {
 				<form onSubmit={handleSubmit}>
 					<FormInput label="Email" type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required />
 					<FormInput label="Senha" type="password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} required />
-					<button type="submit" className="w-full bg-neon-blue text-white p-3 rounded-lg cursor-pointer hover:bg-neon-blue-hover  transition duration-200">
+					<button type="submit" className="w-full bg-neon-blue text-white p-3 rounded-lg cursor-pointer hover:#3282b8  transition duration-200">
 						Entrar
 					</button>
 				</form>

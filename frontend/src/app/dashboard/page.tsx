@@ -4,20 +4,19 @@ import { useState } from "react"
 import Link from "next/link"
 import { FormInput, FormSelect, FormTextarea } from "../../components/FormInputs"
 import { useAuth } from "../contexto/AuthContext"
+import InteractionStyle from "@core/aiconfiguration/InteractionStyle"
+import Tone from "@core/aiconfiguration/Tone"
+import IdChat from "@core/shared/Id"
 
 export default function Dashboard() {
 	const { user } = useAuth()
-	//   const [formData, setFormData] = useState({
-	//     name: user?.email || '',
-	//     bio: user?. || '',
-	//   })
 
-	console.log("Usuario do Dashborad: " + JSON.stringify(user))
+	//console.log("Usuario do Dashboard: " + JSON.stringify(user))
 
 	const [formData, setFormData] = useState({
 		name: user?.profile?.name || "",
 		bio: user?.profile?.bio || "",
-		language: user?.profile?.language || "pt-BR",
+		language: user?.profile?.language || "Português",
 		timezone: user?.profile?.timezone || "America/Brasilia",
 		interactionStyle: user?.aiConfiguration?.interactionStyle || "formal",
 		maxInteractionsPerDay: user?.aiConfiguration?.maxInteractionsPerDay || 10,
@@ -29,10 +28,40 @@ export default function Dashboard() {
 		sourceStatus: user?.dataSources[0]?.status || "active",
 	})
 
-	const [chatMessages, setChatMessages] = useState([{ sender: "Gêmeo Digital", text: "Olá! Como posso te ajudar hoje?", timestamp: new Date() }])
+	const [chatMessages, setChatMessages] = useState([{ sender: "Gêmeo Digital", text: `Olá! Sou ${formData.name} ?`, timestamp: new Date() }])
 	const [chatInput, setChatInput] = useState("")
 	const [error, setError] = useState("")
 	const [success, setSuccess] = useState("")
+
+	// Para montar as opções do select: InteractionStyle
+	const interactionStyleOptions = [
+		{ value: InteractionStyle.Casual, label: "Casual" },
+		{ value: InteractionStyle.Profissional, label: "Profissional" },
+		{ value: InteractionStyle.Formal, label: "Formal" },
+		{ value: InteractionStyle.Reflexivo, label: "Reflexivo" },
+		{ value: InteractionStyle.Engajante, label: "Engajante" },
+		{ value: InteractionStyle.Didatico, label: "Didático" },
+		{ value: InteractionStyle.Humoristico, label: "Humorístico" },
+		{ value: InteractionStyle.Minimalista, label: "Minimalista" },
+		{ value: InteractionStyle.Inspirador, label: "Inspirador" },
+		{ value: InteractionStyle.Empatico, label: "Empático" },
+	]
+
+	// Para montar as opções do select: Tom de Resposta
+	const toneOptions = [
+		{ value: Tone.Amigavel, label: "Amigável" },
+		{ value: Tone.Profissional, label: "Profissional" },
+		{ value: Tone.Empatico, label: "Empático" },
+		{ value: Tone.Serio, label: "Sério" },
+		{ value: Tone.Entusiasmado, label: "Entusiasmado" },
+		{ value: Tone.Calmo, label: "Calmo" },
+		{ value: Tone.Inspirador, label: "Inspirador" },
+		{ value: Tone.Humoristico, label: "Humorístico" },
+		{ value: Tone.Neutro, label: "Neutro" },
+		{ value: Tone.Confiante, label: "Confiante" },
+		{ value: Tone.Acolhedor, label: "Acolhedor" },
+		{ value: Tone.Curioso, label: "Curioso" },
+	]
 
 	const handleFormSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -40,7 +69,10 @@ export default function Dashboard() {
 		setSuccess("")
 
 		try {
-			const response = await fetch("/api/users/8", {
+			if (!user) {
+				throw new Error("Usuário não encontrado")
+			}
+			const response = await fetch(`http://localhost:4000/digitalTwin/${encodeURIComponent(user.id)}/gemeo`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -77,29 +109,77 @@ export default function Dashboard() {
 		}
 	}
 
-	const handleChatSubmit = (e: React.FormEvent) => {
+	const handleChatSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!chatInput.trim()) return
 
 		const newMessage = {
-			sender: "Você",
+			sender: "Você Original",
 			text: chatInput,
 			timestamp: new Date(),
 		}
 		setChatMessages([...chatMessages, newMessage])
 		setChatInput("")
 
-		// Simular resposta do Gêmeo Digital
-		setTimeout(() => {
-			setChatMessages((prev) => [
-				...prev,
-				{
-					sender: "Gêmeo Digital",
-					text: `Entendido! Você disse: "${newMessage.text}". Como posso ajudar mais?`,
-					timestamp: new Date(),
-				},
-			])
-		}, 1000)
+		const corpo = JSON.stringify({
+			chatID: IdChat.generate(), // Gerar um novo ID de chat necessário para agente dividir conversa
+			userID: user?.id?.toString() || "",
+			userName: formData.name,
+			bio: formData.bio,
+			language: formData.language,
+			location: formData.timezone,
+			interactionStyle: formData.interactionStyle,
+			preferedTopics: formData.preferredTopics.split(",").map((t) => t.trim()),
+			tone: formData.tone,
+			responseLenght: formData.responseLength,
+			message: newMessage.text,
+		})
+
+		console.log("Corpo da requisição: " + corpo)
+
+		try {
+			const response = await fetch("http://localhost:5678/webhook-test/gemeo-digital", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					chatID: IdChat.generate, // Gerar um novo ID de chat necessário para agente dividir conversa
+					userID: user?.id?.toString() || "",
+					userName: formData.name,
+					bio: formData.bio,
+					language: formData.language,
+					location: formData.timezone,
+					interactionStyle: formData.interactionStyle,
+					preferedTopics: formData.preferredTopics.split(",").map((t) => t.trim()),
+					tone: formData.tone,
+					responseLenght: formData.responseLength,
+					message: newMessage.text,
+				}),
+			})
+
+			const data = await response.json()
+
+			setTimeout(() => {
+				setChatMessages((prev) => [
+					...prev,
+					{
+						sender: "Gêmeo Digital",
+						text: data.reply || "Resposta do Gêmeo Digital não recebida.",
+						timestamp: new Date(),
+					},
+				])
+			}, 1000)
+		} catch (error) {
+			setTimeout(() => {
+				setChatMessages((prev) => [
+					...prev,
+					{
+						sender: "Gêmeo Digital",
+						text: "Erro ao conectar com o serviço do Gêmeo Digital.",
+						timestamp: new Date(),
+					},
+				])
+			}, 1000)
+		}
 	}
 
 	const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -110,18 +190,23 @@ export default function Dashboard() {
 		<div className="min-h-screen flex p-4">
 			{/* Lado Esquerdo: Formulário */}
 			<div className="w-full md:w-1/2 p-4 bg-dark-card rounded-lg shadow-lg mr-4">
-				<h2 className="text-2xl font-bold mb-6">Configurações do Usuário</h2>
+				<h2 className="text-2xl font-bold mb-6">Configurações do Gemêo</h2>
 				{error && <p className="text-red-500 mb-4">{error}</p>}
 				{success && <p className="text-green-500 mb-4">{success}</p>}
 				<form onSubmit={handleFormSubmit}>
 					<h3 className="text-lg font-semibold mb-2">Perfil</h3>
 					<FormInput label="Nome" name="name" value={formData.name} onChange={handleFormChange} required />
-					<FormTextarea label="Bio" name="bio" value={formData.bio} onChange={handleFormChange} />
-					<FormSelect label="Idioma" name="language" value={formData.language} onChange={handleFormChange} options={["pt-BR", "en-US", "es-ES"]} />
-					<FormSelect label="Fuso Horário" name="timezone" value={formData.timezone} onChange={handleFormChange} options={["America/Sao_Paulo", "America/New_York", "Europe/London"]} />
-
+					<FormTextarea label="Bio" name="bio" value={formData.bio} onChange={handleFormChange} required />
+					<FormSelect label="Idioma" name="language" value={formData.language} onChange={handleFormChange} options={["Português", "Inglês", "Espanhol"]} />
+					<FormInput label="Local onde mora" type="text" name="timezone" value={formData.timezone} onChange={handleFormChange} placeholder="Ex.: Rio de Janeiro, São Paulo" />
 					<h3 className="text-lg font-semibold mb-2 mt-6">Configuração do AI</h3>
-					<FormSelect label="Estilo de Interação" name="interactionStyle" value={formData.interactionStyle} onChange={handleFormChange} options={["formal", "casual", "reflexivo"]} />
+					<FormSelect
+						label="Estilo de Interação"
+						name="interactionStyle"
+						value={formData.interactionStyle}
+						onChange={handleFormChange}
+						options={interactionStyleOptions.map((opt) => opt.value)}
+					/>
 					<FormInput label="Máximo de Interações por Dia" type="number" name="maxInteractionsPerDay" value={formData.maxInteractionsPerDay} onChange={handleFormChange} />
 					<FormInput
 						label="Tópicos Preferidos (separados por vírgula)"
@@ -130,7 +215,7 @@ export default function Dashboard() {
 						onChange={handleFormChange}
 						placeholder="Ex.: marketing, tecnologia"
 					/>
-					<FormSelect label="Tom" name="tone" value={formData.tone} onChange={handleFormChange} options={["profissional", "amigável", "empático"]} />
+					<FormSelect label="Tom" name="tone" value={formData.tone} onChange={handleFormChange} options={toneOptions.map((opt) => opt.value)} />
 					<FormSelect label="Comprimento da Resposta" name="responseLength" value={formData.responseLength} onChange={handleFormChange} options={["curta", "detalhada"]} />
 
 					<h3 className="text-lg font-semibold mb-2 mt-6">Fontes de Dados</h3>

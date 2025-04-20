@@ -4,7 +4,7 @@
   "main": "index.js",
 
   "scripts": {
-    "dev": "npx concurrently \"cd backend && npm run start:dev\" \"cd frontend && npm run dev\""
+    "dev": "npx concurrently \"cd backend && npm run start:dev\" \"cd frontend && npm run dev\" \"cd .. && n8n start\""
   },
   
   "devDependencies": {
