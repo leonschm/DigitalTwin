@@ -158,12 +158,14 @@ export default function Dashboard() {
 
 			const data = await response.json()
 
+			console.log("Resposta do servidor: ", data)
+
 			setTimeout(() => {
 				setChatMessages((prev) => [
 					...prev,
 					{
 						sender: "Gêmeo Digital",
-						text: data.reply || "Resposta do Gêmeo Digital não recebida.",
+						text: data[0].resposta || "Resposta do Gêmeo Digital não recebida.",
 						timestamp: new Date(),
 					},
 				])
