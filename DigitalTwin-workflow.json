@@ -1,0 +1,300 @@
+{
+  "name": "DigitalTwin",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gemeo-digital",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:3000,http://localhost:4000"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7514c0f6-0e06-4fb1-93a9-a67a21b942ba",
+      "name": "Webhook",
+      "webhookId": "c7ac63fb-c14d-4741-9042-981307d48d3b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "=Você é o Gêmeo Digital de {{ $json.body.userName }}, criado com base nas seguintes informações:\n\n**Perfil:**\n- Nome: {{ $json.body.userName }}\n- Bio: {{ $json.body.bio || \"Não fornecida\"}}\n- Idioma: {{ $json.body.language || \"pt-BR\"}}\n\n**Preferencias:**\n {{$json.body.preferedTopics}} \n\nCom base nesses dados, simule uma interação como se fosse {{ $json.body.userName }}. Responda à seguinte pergunta ou comando do usuário: \"{{ $json.body.message}}\". Use o idioma {{ $json.body.language || \"pt-BR\"}} e adapte o tom e estilo ao perfil {{ $json.body.tone}} e respostas de forma {{ $json.body.responseLenght}}. Seja consistente com as informações acima e, se aplicável, incorpore os temas ou conteúdos dos dados de treinamento na resposta.\nObtenha mais informçoes da tool Profile , da tool DataSource e da tool TraningData usando para busca o id {{ $json.body.userID}}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "e4e88c19-990e-4496-b00b-cc8721a08e76",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        220
+      ],
+      "id": "0ce0ac2a-12fc-436f-9e41-8a58e70826b2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VoQ963m7jOVSgo32",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "{{ $json.body.chatID }}",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        220
+      ],
+      "id": "68891737-e0ff-4e22-99c3-6b37c6cc9562",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Profile",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        220
+      ],
+      "id": "350d21b5-7ef7-4577-ad6b-dd7a6fad3307",
+      "name": "Profile",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BonPLh8YFXbQ4SuP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "DataSource",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        600,
+        220
+      ],
+      "id": "e6ab4eae-228f-4fa8-831b-7a572e5b26be",
+      "name": "DataSource",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BonPLh8YFXbQ4SuP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "TrainingData",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "dataSourceId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        720,
+        220
+      ],
+      "id": "1a755326-b61d-4096-8d8c-02f18dd08b89",
+      "name": "TraningData",
+      "credentials": {
+        "supabaseApi": {
+          "id": "BonPLh8YFXbQ4SuP",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03a2d6df-ddd9-48b6-9de2-29481c3c5779",
+              "name": "resposta",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        580,
+        0
+      ],
+      "id": "045cf3dc-cb68-41f6-acb9-6eb0f965c55f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "306b558c-a931-4b90-8b9b-198d631a4bb6",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Profile": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DataSource": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TraningData": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9f06b3a-11c2-4286-9108-5d7bb2f28f77",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "86d22df591a23ecee42baf01e2f125d1cbb675252c0840f77f032307fc85e13c"
+  },
+  "id": "7pFFHhLzIPGoetcv",
+  "tags": []
+}
