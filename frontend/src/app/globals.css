@@ -26,13 +26,13 @@ body {
 }
 
 .bg-neon-blue {
-  --color-background: #0f4c75;
-  --color-foreground: #ffffff;
+  background-color: #0f4c75;
+  color: #ffffff;
 }
 
 .bg-neon-blue-hover {
-  --color-background: #3282b8;
-  --color-foreground: #ffffff;
+  background-color: #3282b8;
+  color: #ffffff;
 }
 
 .bg-dark-card{
