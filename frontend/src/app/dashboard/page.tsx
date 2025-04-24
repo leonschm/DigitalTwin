@@ -147,9 +147,9 @@ export default function Dashboard() {
 		})
 
 		console.log("Corpo da requisição: " + corpo)
-
+		//http://localhost:5678/webhook-test/gemeo-digital
 		try {
-			const response = await fetch("http://localhost:5678/webhook-test/gemeo-digital", {
+			const response = await fetch("https://digitaltwindev.app.n8n.cloud/webhook/gemeo-digital", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
