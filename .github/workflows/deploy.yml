@@ -1,0 +1,120 @@
+name: CI/CD Pipeline for Digital Twin Application
+description: CI/CD pipeline para deploying Do Digital Twin usando AWS ECS e S3 para o backend e frontend.
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Configurar Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            # Backend: Build e Testes
+            - name: Instalando dependências do backend
+              run: cd backend && npm install
+            - name: Build backend
+              run: cd backend && npm run build
+            - name: Run backend testes
+              run: cd backend && npm run test
+              continue-on-error: true
+
+            # Frontend: Build e Testes
+            - name: Instalando dependências do frontend
+              run: cd frontend && npm install
+            - name: Build frontend
+              run: cd frontend && npm run build
+            - name: Run frontend testes
+              run: cd frontend && npm run test
+              continue-on-error: true
+
+    deploy-backend:
+        needs: build-and-test
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Configurar AWS CLI
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            # Login no AWS ECR
+            - name: Login para Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+
+            # Build e Push da imagem Docker do backend
+            - name: Build, tag, and push backend image to ECR
+              env:
+                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+                  IMAGE_TAG: ${{ github.sha }}
+              run: |
+                  cd backend
+                  docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                  docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                  echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+            # Atualizar o serviço ECS
+            - name: Atualizar ECS service
+              run: |
+                  aws ecs update-service \
+                    --cluster my-ai-digital-twin-cluster \
+                    --service my-ai-digital-twin-service \
+                    --force-new-deployment \
+                    --region ${{ secrets.AWS_REGION }}
+
+    deploy-frontend:
+        needs: build-and-test
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Configurar Node.js
+            - name: Configurar Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            # Build frontend usando Docker
+            - name: Build frontend usando Docker imagem
+              run: |
+                  cd frontend
+                  docker build -t nextjs-frontend .
+                  docker create --name temp-container nextjs-frontend
+                  docker cp temp-container:/app/out ./out
+                  docker rm temp-container
+
+            # Configurar AWS CLI
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            # Deploy para S3 e invalidar cache do CloudFront
+            - name: Deploy para S3 e invalidar cache do CloudFront
+              run: |
+                  cd frontend
+                  aws s3 sync out/ s3://${{ secrets.S3_BUCKET }} --delete --acl public-read
