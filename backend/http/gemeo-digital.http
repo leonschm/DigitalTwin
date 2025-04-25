@@ -1,0 +1,49 @@
+POST http://localhost:5678/webhook-test/gemeo-digital
+Content-Type: application/json
+
+{
+    "chatID": "185bc436-a487-4015-af39-827490a9af48",
+    "userID": "8",
+    "userName": "Leonardo Schmitt",
+    "bio": "Analista de sistema interessado em IA",
+    "language": "Portugu\u00eas",
+    "location": "Petropolis, RJ",
+    "interactionStyle": "formal",
+    "preferedTopics": [
+        "tecnologia",
+        "neg\u00f3cios",
+        "IA",
+        "programa\u00e7\u00e3o",
+        "desenvolvimento de software",
+        "Avia\u00e7\u00e3o"
+    ],
+    "tone": "profissional",
+    "responseLenght": "detalhada",
+    "message": "Do que voce mais gosta?"
+}
+
+###
+
+POST https://digitaltwindev.app.n8n.cloud/webhook/gemeo-digital
+Content-Type: application/json
+
+{
+    "chatID": "185bc436-a487-4015-af39-827490a9af48",
+    "userID": "8",
+    "userName": "Leonardo Schmitt",
+    "bio": "Analista de sistema interessado em IA",
+    "language": "Portugu\u00eas",
+    "location": "Petropolis, RJ",
+    "interactionStyle": "formal",
+    "preferedTopics": [
+        "tecnologia",
+        "neg\u00f3cios",
+        "IA",
+        "programa\u00e7\u00e3o",
+        "desenvolvimento de software",
+        "Avia\u00e7\u00e3o"
+    ],
+    "tone": "profissional",
+    "responseLenght": "detalhada",
+    "message": "Do que voce mais gosta?"
+}

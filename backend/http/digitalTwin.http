@@ -1,0 +1,85 @@
+GET http://localhost:4000/digitalTwin/1/gemeo
+
+###
+
+GET http://localhost:4000/digitalTwin/1/user
+
+
+###
+
+GET http://localhost:4000/digitalTwin/leonschm@bol.com.br/senha12345/user
+
+###
+
+GET http://localhost:4000/digitalTwin/nacaogemeos
+
+###
+POST http://localhost:4000/digitalTwin/user
+Content-Type: application/json
+
+{
+    "email": "leonschm@bol.com.br",
+    "password": "senha12345", 
+    "isActive": true, 
+    "profile"
+}
+
+
+###
+POST http://localhost:4000/digitalTwin/user
+Content-Type: application/json
+
+{
+    "email": "leonschm@bol.com.br",
+    "password": "senha12345", 
+    "isActive": true, 
+    "profile": {
+        "name": "Leonardo SChmitt",
+        "bio": "Analista de sistema interessado em IA",
+        "language": "pt-BR",
+        "timezone": "Petropolis, RJ"
+    }
+}
+
+
+###
+PATCH http://localhost:4000/digitalTwin/8/gemeo
+Content-Type: application/json
+
+{
+    "email": "leonschm@bol.com.br",
+    "password": "senha12345", 
+    "isActive": true, 
+    "profile": {
+        "name": "Leonardo SChmitt",
+        "bio": "Analista de sistema interessado em IA",
+        "language": "pt-BR",
+        "timezone": "Petropolis, RJ"
+    },
+    "aiConfiguration": {
+        "interactionStyle": "formal",
+        "maxInteractionsPerDay": 10,
+        "preferredTopics": [
+            "tecnologia",
+            "negócios",
+            "IA",
+            "programação",
+            "desenvolvimento de software",
+            "Aviação"
+        ],
+        "tone": "profissional",
+        "responseLength": "detalhada"
+    }
+}
+
+#  "dataSources": {
+#         "websites": [
+#             "https://www.linkedin.com/in/leonardoschmitt/"
+#         ],
+#         "socialMedia": [
+#             {
+#                 "platform": "LinkedIn",
+#                 "url": "https://www.linkedin.com/in/leonardoschmitt/"
+#             }
+#         ]
+#     }

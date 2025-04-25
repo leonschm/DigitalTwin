@@ -1,0 +1,48 @@
+import { User } from '@core';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
+import { UserProvider } from './user.provider';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateGemeoDto } from './dto/update-gemeo.dto';
+
+@Controller('digitalTwin')
+export class UserController {
+    constructor(private readonly repo: UserProvider) {}
+
+    @Get('/nacaogemeos')
+    async obterTodas(): Promise<User[]> {
+        return this.repo.findAll() as any;
+    }
+
+    @Get(':id/gemeo')
+    async obterGemeoPorId(@Param("id") id: number): Promise<User | null> {
+        return this.repo.findOneGemeo(Number(id)) as any;
+    }
+
+    @Get(':id/user')
+    async obterUsuarioPorId(@Param("id") id: number): Promise<User | null> {
+        return this.repo.findOneUsuario(Number(id)) as any;
+    }
+
+    @Get(':email/:password/user')
+    async obterUsuarioLogin(@Param("email") email: string, @Param("password") password: string): Promise<User | null> {
+        return this.repo.findOneUsuarioLogin(email, password) as any;
+    }
+
+    @Post('/user')
+    @HttpCode(HttpStatus.CREATED)
+    async criarUsuario(@Body() createUserDto: CreateUserDto) {
+        console.log(createUserDto);
+        return this.repo.create(createUserDto) as any;
+    }
+    
+    @Patch(':id/gemeo')
+    @HttpCode(HttpStatus.OK)
+    async atualizarGemeo(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateGemeoDto) {
+        return this.repo.update(Number(id), updateUserDto) as any;
+    }
+    
+    @Delete(':id/gemeo')
+    async deletarGemeo(@Param("id") id: number) {
+        return this.repo.delete(Number(id)) as any;
+    }
+}
