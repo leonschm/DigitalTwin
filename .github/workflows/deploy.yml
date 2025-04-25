@@ -23,10 +23,11 @@ jobs:
                   node-version: "20"
 
             # Backend: Build e Testes
-            - name: Instalando dependências do backend
-              run: cd backend && npm install
-            - name: Build backend
-              run: cd backend && npm run build
+            - name: Instalando dependências do backend e build
+              run: |
+                  cd backend
+                  npm install
+                  npm run build
             - name: Run backend testes
               run: cd backend && npm run test
               continue-on-error: true
