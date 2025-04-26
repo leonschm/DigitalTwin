@@ -181,7 +181,7 @@ export default function Dashboard() {
 					},
 				])
 			}, 1000)
-		} catch (_error) {
+		} catch {
 			setTimeout(() => {
 				setChatMessages((prev) => [
 					...prev,
