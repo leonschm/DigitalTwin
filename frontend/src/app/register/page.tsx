@@ -43,7 +43,7 @@ export default function Register() {
 				throw new Error("Erro ao criar usuário")
 			}
 
-			const data = await response.json()
+			//const data = await response.json()
 			setSuccess("Usuário criado com sucesso!")
 			setFormData({ email: "", password: "", isActive: true, name: "", bio: "", language: "", timezone: "" })
 		} catch (err) {
