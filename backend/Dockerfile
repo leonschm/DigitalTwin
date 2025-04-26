@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+RUN npm install @prisma/client
 RUN npm run build
 
 FROM node:20-alpine AS production
