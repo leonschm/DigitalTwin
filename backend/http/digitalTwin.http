@@ -4,6 +4,9 @@ GET http://localhost:4000/digitalTwin/1/gemeo
 
 GET http://localhost:4000/digitalTwin/1/user
 
+###
+
+DELETE http://localhost:4000/digitalTwin/9/gemeo
 
 ###
 
