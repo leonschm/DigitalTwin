@@ -26,7 +26,9 @@ jobs:
             - name: Instalando dependências do backend
               run: cd backend && npm ci
             - name: Instalando dependências do prisma
-              run: cd backend && npm install @prisma/client && npx prisma generate
+              run: cd backend && npm install @prisma/client
+            - name: Instalando prisma generator
+              run: cd prisma && npx prisma generate
             - name: Build backend
               run: cd backend && npm run build
             - name: Run backend testes
