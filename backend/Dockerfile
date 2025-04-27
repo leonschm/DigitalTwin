@@ -2,6 +2,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
+COPY backend/tsconfig.json ./
+COPY core ./core
 COPY . .
 RUN npm install @prisma/client && npx prisma generate
 RUN npm run build
