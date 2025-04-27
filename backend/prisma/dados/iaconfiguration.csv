@@ -1,0 +1,4 @@
+id,userId,interactionStyle,maxInteractionsPerDay,preferredTopics,tone,responseLength
+1,1,formal,10,"marketing,tecnologia",profissional,detalhada
+2,2,casual,,"entretenimento,engajamento",amigável,curta
+3,3,reflexivo,5,"bem-estar,introspecção",empático,detalhada

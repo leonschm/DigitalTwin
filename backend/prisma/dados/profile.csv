@@ -1,0 +1,4 @@
+id,userId,name,bio,avatarUrl,timezone,language
+1,1,Ana Silva,Analista de marketing interessada em IA,https://example.com/ana.jpg,America/Sao_Paulo,pt-BR
+2,2,João Oliveira,Criador de conteúdo no YouTube,https://example.com/joao.jpg,America/Sao_Paulo,pt-BR
+3,3,Clara Souza,Estudante de psicologia focada em auto-conhecimento,https://example.com/clara.jpg,America/Sao_Paulo,pt-BR

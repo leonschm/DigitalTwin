@@ -1,0 +1,8 @@
+id,dataSourceId,content,createdAt
+1,1,"Post sobre tendências de marketing em 2023",2023-01-01T00:00:00Z
+2,1,"Análise de campanhas de IA no marketing",2023-01-02T00:00:00Z
+3,2,"Texto manual sobre estratégias de SEO",2023-01-03T00:00:00Z
+4,3,"Comentário sobre engajamento em vídeos de humor",2023-01-01T00:00:00Z
+5,4,"Descrição de vídeo sobre dicas de edição",2023-01-02T00:00:00Z
+6,5,"Reflexão sobre a importância do autocuidado",2023-01-01T00:00:00Z
+7,5,"Diário de emoções durante uma semana",2023-01-02T00:00:00Z

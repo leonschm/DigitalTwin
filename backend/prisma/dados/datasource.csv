@@ -1,0 +1,6 @@
+id,userId,sourceType,sourceName,status,lastUpdated
+1,1,social_media,X,active,2023-01-01T00:00:00Z
+2,1,manual,,active,2023-01-01T00:00:00Z
+3,2,social_media,Instagram,active,2023-01-01T00:00:00Z
+4,2,social_media,YouTube,active,2023-01-01T00:00:00Z
+5,3,manual,,active,2023-01-01T00:00:00Z
