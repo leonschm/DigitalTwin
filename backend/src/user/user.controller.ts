@@ -1,5 +1,5 @@
 import { User } from '@core';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
 import { UserProvider } from './user.provider';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateGemeoDto } from './dto/update-gemeo.dto';
@@ -25,7 +25,11 @@ export class UserController {
 
     @Get(':email/:password/user')
     async obterUsuarioLogin(@Param("email") email: string, @Param("password") password: string): Promise<User | null> {
-        return this.repo.findOneUsuarioLogin(email, password) as any;
+        const usuario = await this.repo.findOneUsuarioLogin(email, password) as any;
+        if (!usuario) {
+            throw new NotFoundException(`Usuário com email ${email} não encontrado , revise a senha!`);
+        }
+        return usuario;
     }
 
     @Post('/user')
