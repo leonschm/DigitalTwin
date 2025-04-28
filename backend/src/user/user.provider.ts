@@ -1,14 +1,18 @@
 import { User } from '@core';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaProvider } from 'src/db/prisma.provider';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateGemeoDto } from './dto/update-gemeo.dto';
 
 @Injectable()
 export class UserProvider {
+
+    private readonly logger = new Logger(UserProvider.name);
+    
     constructor(private readonly prisma: PrismaProvider) {}
 
     async findAll(): Promise<User[]> {
+      this.logger.debug('Chamando findAll');
         return this.prisma.user.findMany({
             orderBy: {
                 id: 'asc',
@@ -22,6 +26,7 @@ export class UserProvider {
     }
     
     async findOneGemeo(id: number): Promise<User | null> {
+        this.logger.debug(`Chamando findOneGemeo com id: ${id}`);
         return this.prisma.user.findUnique({
             where: { id },
             include: { profile: true, aiConfiguration: true, dataSources: {
@@ -33,12 +38,14 @@ export class UserProvider {
     }
 
     async findOneUsuario(id: number): Promise<User | null> {
+        this.logger.debug(`Chamando findOneUsuario com id: ${id}`);
         return this.prisma.user.findUnique({
             where: { id },
         }) as any;
     }
 
     async findOneUsuarioLogin(email: string, password: string): Promise<User | null> {
+        this.logger.debug(`Chamando findOneUsuarioLogin com email: ${email} e password: ${password}`);
         return this.prisma.user.findUnique({
             where: { email, password },
             include: { profile: true, aiConfiguration: true, dataSources: {
@@ -50,6 +57,7 @@ export class UserProvider {
     }
     
     async create(createUserDto: CreateUserDto) {
+        this.logger.debug(`Chamando create com createUserDto: ${JSON.stringify(createUserDto)}`);
         const user = await this.prisma.user.create({
             data: {
                 email: createUserDto.email,
@@ -80,6 +88,7 @@ export class UserProvider {
     
 
     async update(id: number, updateGemeoDto: UpdateGemeoDto) {
+        this.logger.debug(`Chamando update com id: ${id} e updateGemeoDto: ${JSON.stringify(updateGemeoDto)}`);
         // Verificar se o usuário existe
         const user = await this.prisma.user.findUnique({ where: { id } });
         if (!user) {
@@ -130,6 +139,7 @@ export class UserProvider {
     
         // Atualizar em uma transação
         return this.prisma.$transaction(async (prisma) => {
+          this.logger.debug(`Atualizando usuário com ID ${id} dentro da transação`);
           return prisma.user.update({
             where: { id },
             data: {
@@ -171,12 +181,14 @@ export class UserProvider {
       }
     
     async delete(id: number) {
+        this.logger.debug(`Chamando delete com id: ${id}`);
         return this.prisma.user.delete({
             where: { id },
         });
     }
     
-    async findByEmail(email: string) {  
+    async findByEmail(email: string) {
+        this.logger.debug(`Chamando findByEmail com email: ${email}`);  
         return this.prisma.user.findUnique({
             where: { email },
         });
