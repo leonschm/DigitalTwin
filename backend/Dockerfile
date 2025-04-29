@@ -1,12 +1,10 @@
 FROM node:20-alpine AS builder
-WORKDIR /app
-COPY backend/package*.json ./backend/
-COPY core/package*.json ./core/
-RUN cd core && npm ci --omit=dev
-RUN cd backend && npm ci --omit=dev
+WORKDIR /app/backend
+COPY package*.json ./
+RUN npm ci --omit=dev
 COPY . .
 RUN npm install @prisma/client && npx prisma generate
-RUN npm run build
+RUN npm run build 
 
 FROM node:20-alpine AS production
 WORKDIR /app
