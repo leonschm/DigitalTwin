@@ -5,7 +5,7 @@ COPY core/package*.json ./core/
 RUN cd core && npm ci && cd ..
 RUN cd backend && npm ci
 COPY backend ./backend
-COPY core ./core
+#COPY core ./core
 RUN cd backend && npm install @prisma/client && npx prisma generate
 RUN cd backend && npm run build
 
